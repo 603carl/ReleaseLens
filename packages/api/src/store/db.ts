@@ -1,10 +1,12 @@
-import initSqlJs, { Database as SqlJsDatabase } from 'sql.js';
+import initSqlJs, { type Database as SqlJsDatabase } from 'sql.js';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-const DATA_DIR = path.join(__dirname, '..', '..', 'data');
+const DATA_DIR = process.env.VERCEL
+  ? path.join(process.env.TMPDIR ?? '/tmp', 'releaselens')
+  : path.join(__dirname, '..', '..', 'data');
 const DB_PATH = path.join(DATA_DIR, 'releaselens.db');
 
 let db: SqlJsDatabase | null = null;

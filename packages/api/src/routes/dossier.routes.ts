@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, type Request, type Response } from 'express';
 import { getReleaseCandidateById, getChangesByReleaseCandidate } from '../store/release-candidate.store.js';
 import { getRepositoryById } from '../store/repository.store.js';
 import { getImpactItemsByReleaseCandidate } from '../store/impact.store.js';

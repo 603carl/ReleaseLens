@@ -1,5 +1,5 @@
 import { describe, it, expect, beforeAll, afterAll } from 'vitest';
-import initSqlJs, { Database as SqlJsDatabase } from 'sql.js';
+import initSqlJs, { type Database as SqlJsDatabase } from 'sql.js';
 
 // In-memory sql.js database for tests — no file I/O, no native compilation
 let db: SqlJsDatabase;

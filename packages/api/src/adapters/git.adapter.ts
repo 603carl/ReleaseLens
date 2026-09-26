@@ -4,7 +4,7 @@
  * Never executes arbitrary user-supplied commands.
  * All paths are validated before use.
  */
-import { simpleGit, SimpleGit } from 'simple-git';
+import { simpleGit, type SimpleGit } from 'simple-git';
 import path from 'path';
 import fs from 'fs';
 

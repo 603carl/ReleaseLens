@@ -1,4 +1,4 @@
-import { Router, Request, Response } from 'express';
+import { Router, type Request, type Response } from 'express';
 import { getReleaseCandidateById } from '../store/release-candidate.store.js';
 import { triageFailures } from '../engine/findings.engine.js';
 
