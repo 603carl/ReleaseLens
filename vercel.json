@@ -6,5 +6,11 @@
     "api/[...path].ts": {
       "includeFiles": "node_modules/sql.js/dist/sql-wasm.wasm"
     }
-  }
+  },
+  "rewrites": [
+    {
+      "source": "/(.*)",
+      "destination": "/index.html"
+    }
+  ]
 }
