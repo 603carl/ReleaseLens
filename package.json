@@ -1,0 +1,20 @@
+{
+  "name": "releaselens",
+  "private": true,
+  "workspaces": [
+    "packages/api",
+    "packages/ui"
+  ],
+  "scripts": {
+    "dev": "concurrently --names \"API,UI\" --prefix-colors \"cyan,magenta\" \"npm run dev --workspace=packages/api\" \"npm run dev --workspace=packages/ui\"",
+    "build": "npm run build --workspace=packages/api && npm run build --workspace=packages/ui",
+    "test": "npm run test --workspace=packages/api && npm run test --workspace=packages/ui",
+    "lint": "npm run lint --workspace=packages/api && npm run lint --workspace=packages/ui",
+    "typecheck": "npm run typecheck --workspace=packages/api && npm run typecheck --workspace=packages/ui",
+    "clean": "rimraf packages/api/dist packages/ui/dist packages/api/node_modules packages/ui/node_modules node_modules"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2",
+    "rimraf": "^5.0.5"
+  }
+}

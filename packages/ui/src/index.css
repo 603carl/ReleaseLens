@@ -1,0 +1,394 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap');
+
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  * {
+    box-sizing: border-box;
+  }
+
+  html {
+    font-size: 15px;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  body {
+    background-color: #0d1117;
+    color: #e6edf3;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+  }
+
+  :focus-visible {
+    outline: 2px solid #EA580C;
+    outline-offset: 2px;
+  }
+
+  ::-webkit-scrollbar { width: 5px; height: 5px; }
+  ::-webkit-scrollbar-track { background: #161b22; }
+  ::-webkit-scrollbar-thumb { background: #30363d; border-radius: 4px; }
+  ::-webkit-scrollbar-thumb:hover { background: #484f58; }
+
+  ::selection { background: #EA580C; color: #fff; }
+}
+
+@layer components {
+
+  /* ─── Workbench Structure ─────────────────────────── */
+
+  .workbench-container {
+    @apply flex-1 w-full max-w-[1920px] mx-auto px-4 sm:px-6 lg:px-8 xl:px-10 py-7 space-y-6;
+  }
+
+  /* Dark-themed card — the single card primitive used everywhere */
+  .workbench-card {
+    @apply bg-[#161b22] border border-[#30363d] rounded-2xl shadow-card transition-all;
+  }
+
+  .workbench-card-header {
+    @apply px-5 py-3.5 border-b border-[#30363d] bg-[#0d1117] rounded-t-2xl flex items-center justify-between;
+  }
+
+  /* ─── Status Badges ──────────────────────────────── */
+
+  .badge {
+    @apply inline-flex items-center gap-1.5 px-2.5 py-0.5 rounded-full text-2xs font-semibold tracking-wide border;
+  }
+
+  .badge-passed {
+    background: #0f3322;
+    color: #3fb950;
+    border-color: #196c2e;
+  }
+
+  .badge-failed {
+    background: #3d0c0c;
+    color: #f85149;
+    border-color: #6e1414;
+  }
+
+  .badge-running {
+    background: #2d2000;
+    color: #d29922;
+    border-color: #5a3e00;
+  }
+
+  .badge-pending {
+    background: #1c2128;
+    color: #8b949e;
+    border-color: #30363d;
+  }
+
+  .badge-blocked {
+    background: #3d0c0c;
+    color: #f85149;
+    border-color: #6e1414;
+  }
+
+  .badge-unknown {
+    background: #1c2128;
+    color: #8b949e;
+    border-color: #30363d;
+  }
+
+  .badge-not-verified {
+    background: #1c2128;
+    color: #8b949e;
+    border-color: #30363d;
+  }
+
+  .badge-info {
+    background: #1c2128;
+    color: #c9d1d9;
+    border-color: #30363d;
+  }
+
+  /* ─── Severity Badges ────────────────────────────── */
+
+  .badge-critical {
+    background: #3d0c0c;
+    color: #f85149;
+    border-color: #6e1414;
+    font-weight: 700;
+  }
+
+  .badge-high {
+    background: #2d1a00;
+    color: #EA580C;
+    border-color: #5a3400;
+  }
+
+  .badge-medium {
+    background: #2d2000;
+    color: #d29922;
+    border-color: #5a3e00;
+  }
+
+  .badge-low {
+    background: #0f3322;
+    color: #3fb950;
+    border-color: #196c2e;
+  }
+
+  /* ─── Confidence Badges ───────────────────────────── */
+
+  .badge-confirmed {
+    background: #0f3322;
+    color: #3fb950;
+    border-color: #196c2e;
+    font-weight: 700;
+  }
+
+  .badge-supported {
+    background: #1c2128;
+    color: #8b949e;
+    border-color: #30363d;
+  }
+
+  /* ─── Category / Tag Chip Badges ── */
+
+  .chip-yellow {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold tracking-wide;
+    background: #2d2000;
+    color: #d29922;
+    border: 1px solid #5a3e00;
+  }
+
+  .chip-purple {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold tracking-wide;
+    background: #1e1a35;
+    color: #a78bfa;
+    border: 1px solid #3d2f6e;
+  }
+
+  .chip-blue {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold tracking-wide;
+    background: #0d1f3c;
+    color: #58a6ff;
+    border: 1px solid #1f3d70;
+  }
+
+  .chip-orange {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold tracking-wide;
+    background: #2d1a00;
+    color: #EA580C;
+    border: 1px solid #5a3400;
+  }
+
+  .chip-green {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold tracking-wide;
+    background: #0f3322;
+    color: #3fb950;
+    border: 1px solid #196c2e;
+  }
+
+  .chip-red {
+    @apply inline-flex items-center px-2.5 py-0.5 rounded-full text-2xs font-bold tracking-wide;
+    background: #3d0c0c;
+    color: #f85149;
+    border: 1px solid #6e1414;
+  }
+
+  /* ─── Buttons ─────────────────────────────────────── */
+
+  .btn {
+    @apply inline-flex items-center justify-center gap-2 px-4 py-2 text-xs font-semibold rounded-xl border transition-all duration-150 focus-visible:ring-2 focus-visible:ring-offset-1 focus-visible:ring-offset-[#0d1117] disabled:opacity-40 disabled:cursor-not-allowed select-none;
+  }
+
+  .btn-primary {
+    @apply btn bg-[#EA580C] text-white border-[#EA580C] hover:bg-[#C2410C] active:bg-[#9A3412] shadow-sm font-bold rounded-full;
+  }
+
+  .btn-secondary {
+    @apply btn bg-[#21262d] text-[#c9d1d9] border-[#30363d] hover:bg-[#30363d] hover:border-[#484f58] active:bg-[#161b22] shadow-card rounded-xl;
+  }
+
+  .btn-success {
+    @apply btn bg-[#196c2e] text-white border-[#196c2e] hover:bg-[#1a7f35] font-bold shadow-sm rounded-full;
+  }
+
+  .btn-danger {
+    @apply btn bg-[#3d0c0c] text-[#f85149] border-[#6e1414] hover:bg-[#4e1010] hover:border-[#8b1c1c] rounded-xl;
+  }
+
+  .btn-ghost {
+    @apply btn bg-transparent text-[#8b949e] border-transparent hover:bg-[#21262d] hover:text-[#c9d1d9] rounded-xl;
+  }
+
+  .btn-dark {
+    @apply btn bg-[#21262d] text-[#f0f6fc] border-[#30363d] hover:bg-[#30363d] hover:border-[#484f58] rounded-full;
+  }
+
+  /* Pill Navigation Tabs */
+  .pill-tab {
+    @apply px-4 py-1.5 text-xs font-semibold rounded-full transition-all duration-150 select-none whitespace-nowrap;
+  }
+
+  .pill-tab-active {
+    @apply pill-tab bg-[#FACC15] text-[#0d1117] font-bold shadow-pill;
+  }
+
+  .pill-tab-inactive {
+    @apply pill-tab text-[#8b949e] hover:text-[#f0f6fc] hover:bg-[#21262d];
+  }
+
+  /* ─── Inputs ──────────────────────────────────────── */
+
+  .input {
+    @apply w-full px-3.5 py-2 text-xs font-mono bg-[#0d1117] border border-[#30363d] rounded-xl text-[#c9d1d9] placeholder-[#484f58] focus:border-[#EA580C] focus:ring-2 focus:ring-[#EA580C]/20 outline-none transition-all;
+  }
+
+  .label {
+    @apply block text-2xs font-bold uppercase tracking-wider text-[#8b949e] mb-1.5;
+  }
+
+  /* ─── Tables ──────────────────────────────────────── */
+
+  .data-table { @apply w-full text-xs border-collapse; }
+
+  .data-table th {
+    @apply text-left px-4 py-3 text-2xs font-bold text-[#8b949e] uppercase tracking-wider border-b border-[#30363d] bg-[#0d1117];
+  }
+
+  .data-table td { @apply px-4 py-3 border-b border-[#21262d] text-xs text-[#c9d1d9]; }
+  .data-table tr:last-child td { @apply border-b-0; }
+  .data-table tbody tr { @apply hover:bg-[#1c2128] transition-colors; }
+
+  /* ─── Metric Cards ────────────────────────────────── */
+
+  .metric-card {
+    @apply bg-[#161b22] border border-[#30363d] rounded-2xl shadow-card p-5 flex flex-col justify-between min-h-[100px];
+  }
+
+  .metric-card-label {
+    @apply text-2xs font-bold uppercase tracking-widest text-[#8b949e] mb-3 flex items-center gap-2;
+  }
+
+  .metric-card-value {
+    @apply text-3xl font-black text-[#e6edf3] tracking-tight leading-none;
+  }
+
+  /* Coloured metric tile variants */
+  .metric-card-amber  { @apply metric-card bg-[#2d2000] border-[#5a3e00]; }
+  .metric-card-orange { @apply metric-card bg-[#2d1a00] border-[#5a3400]; }
+  .metric-card-green  { @apply metric-card bg-[#0f3322] border-[#196c2e]; }
+  .metric-card-red    { @apply metric-card bg-[#3d0c0c] border-[#6e1414]; }
+  .metric-card-dark   { @apply metric-card bg-[#0d1117] border-[#21262d]; }
+
+  /* ─── Terminal / Code ─────────────────────────────── */
+
+  .terminal-box {
+    @apply font-mono text-2xs bg-[#0a0d12] text-[#c9d1d9] border border-[#30363d] rounded-xl p-4 shadow-inner overflow-auto leading-relaxed;
+  }
+
+  .code-inline {
+    @apply font-mono text-2xs bg-[#2d1a00] text-[#EA580C] border border-[#5a3400] px-1.5 py-0.5 rounded;
+  }
+
+  /* ─── Alerts ──────────────────────────────────────── */
+
+  .alert {
+    @apply bg-[#161b22] border border-[#30363d] rounded-2xl shadow-card p-4 flex items-start gap-3.5;
+  }
+
+  .alert-critical {
+    border-left: 4px solid #f85149;
+    background: #1e0a0a;
+    border-color: #6e1414;
+    border-left-color: #f85149;
+  }
+
+  .alert-warning {
+    border-left: 4px solid #d29922;
+    background: #1a1300;
+    border-color: #5a3e00;
+    border-left-color: #d29922;
+  }
+
+  .alert-info {
+    border-left: 4px solid #EA580C;
+    background: #1a0f00;
+    border-color: #5a3400;
+    border-left-color: #EA580C;
+  }
+
+  .alert-success {
+    border-left: 4px solid #3fb950;
+    background: #091d12;
+    border-color: #196c2e;
+    border-left-color: #3fb950;
+  }
+
+  /* ─── Detail Pane ────────────────────────────────── */
+
+  .detail-pane {
+    @apply bg-[#1c2128] border border-[#30363d] rounded-xl p-5 space-y-4;
+  }
+
+  .detail-pane-dark {
+    @apply bg-[#0a0d12] border border-[#30363d] rounded-xl p-5 space-y-4;
+  }
+
+  /* ─── Progress Bar ─────────────────────────────────── */
+
+  .progress-track {
+    @apply h-1.5 w-full bg-[#21262d] rounded-full overflow-hidden;
+  }
+
+  .progress-fill {
+    @apply h-full bg-[#e6edf3] rounded-full transition-all duration-500;
+  }
+
+  .progress-fill-orange {
+    @apply h-full bg-[#EA580C] rounded-full transition-all duration-500;
+  }
+}
+
+/* ─── Keyframe Animations ─────────────────────────────── */
+
+@keyframes codeScanSweep {
+  0%   { transform: translateY(-100%); opacity: 0; }
+  50%  { opacity: 0.5; }
+  100% { transform: translateY(600%); opacity: 0; }
+}
+
+@keyframes cursorBlink {
+  0%, 100% { opacity: 1; }
+  50%       { opacity: 0; }
+}
+
+.animate-cursor-blink {
+  animation: cursorBlink 0.9s infinite;
+}
+
+@keyframes slideUp {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+.animate-slide-up {
+  animation: slideUp 0.3s ease-out forwards;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out forwards;
+}
+
+/* ─── Print Styles ───────────────────────────────── */
+@media print {
+  .no-print { display: none !important; }
+  header, footer { display: none !important; }
+  body { background: white !important; color: #1A1E27 !important; }
+  .workbench-card { box-shadow: none !important; border: 1px solid #E2E6EA !important; background: white !important; }
+}
