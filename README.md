@@ -35,19 +35,15 @@ ReleaseLens does not replace engineering judgment. It makes verification evidenc
 npm install
 ```
 
-### Start servers
+### Start local workbench
 
-**Terminal 1 — API server (port 3001):**
 ```bash
-npx tsx packages/api/src/index.ts
+npm run dev
 ```
 
-**Terminal 2 — UI dev server (port 5173):**
-```bash
-npm run dev --workspace=packages/ui
-```
+This starts the API on port 3001 and the UI on port 5173. The first run prepares the demo repository's local Git history. Open http://localhost:5173.
 
-Open http://localhost:5173
+To analyze one of your repositories, choose **Add Repository** and enter its absolute path, such as `C:\code\my-app`. The API must run on the same computer that can access that folder. A Vercel deployment cannot read repositories from your computer; use this local mode for repository analysis.
 
 ### Run demo
 
