@@ -1,9 +1,11 @@
 import initSqlJs, { type Database as SqlJsDatabase } from 'sql.js';
+import { createRequire } from 'node:module';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import fs from 'fs';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
+const require = createRequire(import.meta.url);
 const DATA_DIR = process.env.VERCEL
   ? path.join(process.env.TMPDIR ?? '/tmp', 'releaselens')
   : path.join(__dirname, '..', '..', 'data');
@@ -28,7 +30,9 @@ export async function initDb(): Promise<SqlJsDatabase> {
     fs.mkdirSync(DATA_DIR, { recursive: true });
   }
 
-  const SQL = await initSqlJs();
+  const SQL = await initSqlJs({
+    locateFile: (file) => require.resolve(`sql.js/dist/${file}`),
+  });
 
   // Load existing DB from disk if present
   if (fs.existsSync(DB_PATH)) {
