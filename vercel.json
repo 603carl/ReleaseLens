@@ -8,9 +8,11 @@
     }
   },
   "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/index.html"
-    }
+    { "source": "/overview", "destination": "/index.html" },
+    { "source": "/change", "destination": "/index.html" },
+    { "source": "/impact", "destination": "/index.html" },
+    { "source": "/verification", "destination": "/index.html" },
+    { "source": "/findings", "destination": "/index.html" },
+    { "source": "/dossier", "destination": "/index.html" }
   ]
 }
