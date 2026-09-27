@@ -15,12 +15,56 @@ import type {
 } from '../types/domain.ts';
 
 const API_ENDPOINT = '/api/health';
+const DEMO_CACHE_KEY = 'releaselens:vercelDemoWorkflow';
+
+interface DemoWorkflow {
+  changes: Change[];
+  diff: { diff: string };
+  impactItems: ImpactItem[];
+  plan: VerificationPlan;
+  checks: {
+    planId: string;
+    releaseCandidateId: string;
+    results: Array<{
+      itemId: string;
+      runId?: string;
+      command: string;
+      status: Status;
+      exitCode?: number;
+      durationMs?: number;
+    }>;
+    overallStatus: Status;
+  };
+  findings: Finding[];
+  dossier: Dossier;
+}
+
+interface DemoWorkflowCache {
+  responses: Record<string, unknown>;
+}
+
+function getCachedResponse<T>(method: string, route: string): { data: T } | null {
+  try {
+    const cache = JSON.parse(localStorage.getItem(DEMO_CACHE_KEY) ?? 'null') as DemoWorkflowCache | null;
+    const key = `${method}:${route}`;
+    if (cache && Object.prototype.hasOwnProperty.call(cache.responses, key)) {
+      return { data: cache.responses[key] as T };
+    }
+  } catch {
+    localStorage.removeItem(DEMO_CACHE_KEY);
+  }
+  return null;
+}
 
 async function apiFetch<T>(
   url: string,
   options?: RequestInit,
 ): Promise<{ data: T } | { error: { code: string; message: string } }> {
   const [route, query = ''] = url.split('?');
+  const method = (options?.method ?? 'GET').toUpperCase();
+  const cached = getCachedResponse<T>(method, route.replace(/^\/+/, ''));
+  if (cached) return cached;
+
   const params = new URLSearchParams(query);
   params.set('__api_route', route.replace(/^\/+/, ''));
   const res = await fetch(`${API_ENDPOINT}?${params.toString()}`, {
@@ -149,11 +193,34 @@ export async function getDossier(releaseCandidateId: string) {
 // ─── Demo ────────────────────────────────────────────────────
 
 export async function launchDemo() {
-  return apiFetch<{ repository: Repository; releaseCandidate: ReleaseCandidate }>('/demo/launch', {
+  localStorage.removeItem(DEMO_CACHE_KEY);
+  const result = await apiFetch<{
+    repository: Repository;
+    releaseCandidate: ReleaseCandidate;
+    workflow?: DemoWorkflow;
+  }>('/demo/launch', {
     method: 'POST',
   });
+  if ('data' in result && result.data.workflow) {
+    const { repository, releaseCandidate, workflow } = result.data;
+    const responses: Record<string, unknown> = {
+      'GET:repositories': [repository],
+      [`GET:repositories/${repository.id}/release-candidates`]: [releaseCandidate],
+      [`GET:release-candidates/${releaseCandidate.id}/changes`]: workflow.changes,
+      [`GET:release-candidates/${releaseCandidate.id}/diff`]: workflow.diff,
+      [`GET:release-candidates/${releaseCandidate.id}/impact`]: workflow.impactItems,
+      [`GET:release-candidates/${releaseCandidate.id}/plan`]: workflow.plan,
+      'POST:checks/run': workflow.checks,
+      [`GET:findings/${releaseCandidate.id}`]: workflow.findings,
+      [`GET:dossier/${releaseCandidate.id}`]: workflow.dossier,
+      [`POST:dossier/${releaseCandidate.id}`]: workflow.dossier,
+    };
+    localStorage.setItem(DEMO_CACHE_KEY, JSON.stringify({ responses } satisfies DemoWorkflowCache));
+  }
+  return result;
 }
 
 export async function resetDemo() {
+  localStorage.removeItem(DEMO_CACHE_KEY);
   return apiFetch<{ message: string; timestamp: string }>('/demo/reset', { method: 'POST' });
 }
