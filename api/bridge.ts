@@ -1,5 +1,4 @@
 import type { Request, Response } from 'express';
-import apiHandler from '../packages/api/src/vercel.handler.js';
 
 export default async function handler(req: Request, res: Response): Promise<void> {
   const requestUrl = new URL(req.url ?? '/', `http://${req.headers.host ?? 'localhost'}`);
@@ -13,5 +12,6 @@ export default async function handler(req: Request, res: Response): Promise<void
   requestUrl.searchParams.delete('__api_route');
   const query = requestUrl.searchParams.toString();
   req.url = `/api/${apiRoute}${query ? `?${query}` : ''}`;
+  const { default: apiHandler } = await import('../packages/api/src/vercel.handler.js');
   return apiHandler(req, res);
 }
