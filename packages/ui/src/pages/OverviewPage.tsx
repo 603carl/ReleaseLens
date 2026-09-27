@@ -4,10 +4,16 @@ import { useAppContext } from '../context/AppContext.tsx';
 import {
   getRepositories,
   createRepository,
+  launchDemo,
   deleteRepository,
   syncRepository,
   createReleaseCandidate,
   getReleaseCandidates,
+  getChanges,
+  getImpact,
+  runChecks,
+  getFindings,
+  generateDossier,
   resetDemo,
 } from '../api/client.ts';
 import {
@@ -17,10 +23,6 @@ import {
   PageHeader,
 } from '../components/shared/index.tsx';
 import type { Repository, ReleaseCandidate } from '../types/domain.ts';
-
-const DEMO_PATH = '../../demo-repository';
-const DEMO_BASE_REF = 'HEAD~1';
-const DEMO_LABEL = 'RC-pricing-discount-v1.0.1';
 
 export function OverviewPage() {
   const { repository, releaseCandidate, setRepository, setReleaseCandidate } = useAppContext();
@@ -39,6 +41,7 @@ export function OverviewPage() {
 
   const [loading, setLoading] = useState(false);
   const [demoLoading, setDemoLoading] = useState(false);
+  const [demoStep, setDemoStep] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [statusMsg, setStatusMsg] = useState<string | null>(null);
 
@@ -161,19 +164,54 @@ export function OverviewPage() {
     setDemoLoading(true);
     setError(null);
     try {
-      const repoResult = await createRepository({ path: DEMO_PATH, name: 'demo-repository' });
-      if ('error' in repoResult) { setError(repoResult.error.message); return; }
-      const repo = repoResult.data as Repository;
+      setDemoStep('Preparing demo…');
+      const launchResult = await launchDemo();
+      if ('error' in launchResult) { setError(launchResult.error.message); return; }
+      const { repository: repo, releaseCandidate: rc } = launchResult.data;
       setRepository(repo);
-      const rcResult = await createReleaseCandidate(repo.id, { baseRef: DEMO_BASE_REF, label: DEMO_LABEL });
-      if ('error' in rcResult) { setError(rcResult.error.message); return; }
-      setReleaseCandidate(rcResult.data as ReleaseCandidate);
+      setReleaseCandidate(rc);
+
+      setDemoStep('Reading changes…');
+      const changesResult = await getChanges(rc.id);
+      if ('error' in changesResult) { setError(`Demo stopped while reading changes: ${changesResult.error.message}`); return; }
+      if (changesResult.data.length === 0) {
+        setError('Demo stopped: no changes were found between the configured base and target references.');
+        return;
+      }
+
+      setDemoStep('Tracing impact…');
+      const impactResult = await getImpact(rc.id);
+      if ('error' in impactResult) { setError(`Demo stopped during impact analysis: ${impactResult.error.message}`); return; }
+      if (impactResult.data.length === 0) {
+        setError('Demo stopped: impact analysis returned no affected areas.');
+        return;
+      }
+
+      setDemoStep('Running checks…');
+      const checksResult = await runChecks(rc.id);
+      if ('error' in checksResult) { setError(`Demo stopped during verification: ${checksResult.error.message}`); return; }
+
+      setDemoStep('Triage and dossier…');
+      const findingsResult = await getFindings(rc.id);
+      if ('error' in findingsResult) { setError(`Demo stopped during findings triage: ${findingsResult.error.message}`); return; }
+      const dossierResult = await generateDossier(rc.id);
+      if ('error' in dossierResult) { setError(`Demo stopped while generating the dossier: ${dossierResult.error.message}`); return; }
+
+      const candidatesResult = await getReleaseCandidates(repo.id);
+      const refreshedRc = 'data' in candidatesResult
+        ? candidatesResult.data.find((candidate) => candidate.id === rc.id) ?? rc
+        : rc;
+      setReleaseCandidate(refreshedRc);
       await loadAllRepos();
-      showNotification('Demo repository mounted.');
+      showNotification(
+        `Demo ready: ${changesResult.data.length} change(s), ${impactResult.data.length} impact area(s), ` +
+        `${checksResult.data.results.length} check(s), ${findingsResult.data.length} finding(s).`,
+      );
       navigate('/change');
     } catch (err) {
       setError((err as Error).message);
     } finally {
+      setDemoStep(null);
       setDemoLoading(false);
     }
   }
@@ -227,7 +265,7 @@ export function OverviewPage() {
             </button>
             <button onClick={handleLoadDemo} disabled={demoLoading} className="btn btn-secondary text-sm">
               {demoLoading ? <Spinner size="sm" /> : null}
-              Load Demo
+              {demoLoading ? demoStep : 'Load Demo'}
             </button>
             <button onClick={handleReset} className="btn btn-danger text-sm font-mono" title="Reset all database records">
               Reset
@@ -307,7 +345,7 @@ export function OverviewPage() {
                 disabled={demoLoading}
                 className="mt-4 px-5 py-2 rounded-full bg-[#EA580C] text-white font-semibold text-sm hover:bg-[#C2410C] transition-colors"
               >
-                {demoLoading ? 'Mounting…' : 'Load Demo'}
+                {demoLoading ? (demoStep ?? 'Preparing…') : 'Load Demo'}
               </button>
             </div>
           ) : (

@@ -4,15 +4,15 @@ A controlled demo scenario for the **ReleaseLens** hackathon project.
 
 ## What this is
 
-This repository simulates a realistic TypeScript order-management service library used to demonstrate ReleaseLens's ability to surface meaningful information from a feature branch before it merges.
+This repository simulates a TypeScript order-management service library used to demonstrate ReleaseLens's evidence-backed verification workflow.
 
 The codebase contains three intentional issues that ReleaseLens is designed to detect and report:
 
-| Finding | Severity | Location |
-|---------|----------|----------|
-| Contract test failure: `order total with 10% discount should equal 90` | HIGH | `tests/contracts/orders.test.ts` |
-| Logic bug in `calculateDiscount` — missing `/ 100` turns a 10 % discount into a 900 % penalty | HIGH | `src/orders/pricing.ts` |
-| Unused variable `unusedHelper` | MEDIUM | `src/shared/validators.ts` |
+| Observed issue | Evidence | ReleaseLens result |
+|---------------|----------|--------------------|
+| Contract test expects 90 but receives -900 | `tests/contracts/orders.test.ts` | CRITICAL finding from the failed verbose test check |
+| `calculateDiscount` omits `/ 100` for percentage input | `src/orders/pricing.ts` | Exposed by the failing contract assertion |
+| Unused variable `unusedHelper` | `src/shared/validators.ts` | Lint emits a warning and exits successfully, so it is not classified as a failed-check finding |
 
 ## Running checks
 

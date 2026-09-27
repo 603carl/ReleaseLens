@@ -5,6 +5,7 @@
 import type {
   Repository,
   ReleaseCandidate,
+  Status,
   Change,
   ImpactItem,
   VerificationPlan,
@@ -95,7 +96,19 @@ export async function getVerificationPlan(releaseCandidateId: string) {
 }
 
 export async function runChecks(releaseCandidateId: string) {
-  return apiFetch<{ started: boolean; planId: string }>('/checks/run', {
+  return apiFetch<{
+    planId: string;
+    releaseCandidateId: string;
+    results: Array<{
+      itemId: string;
+      runId?: string;
+      command: string;
+      status: Status;
+      exitCode?: number;
+      durationMs?: number;
+    }>;
+    overallStatus: Status;
+  }>('/checks/run', {
     method: 'POST',
     body: JSON.stringify({ releaseCandidateId }),
   });
@@ -122,6 +135,12 @@ export async function getDossier(releaseCandidateId: string) {
 }
 
 // ─── Demo ────────────────────────────────────────────────────
+
+export async function launchDemo() {
+  return apiFetch<{ repository: Repository; releaseCandidate: ReleaseCandidate }>('/demo/launch', {
+    method: 'POST',
+  });
+}
 
 export async function resetDemo() {
   return apiFetch<{ message: string; timestamp: string }>('/demo/reset', { method: 'POST' });

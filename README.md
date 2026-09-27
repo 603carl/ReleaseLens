@@ -48,12 +48,10 @@ To analyze one of your repositories, choose **Add Repository** and enter its abs
 ### Run demo
 
 1. Open http://localhost:5173
-2. Click **"Load Demo Scenario"** on the Overview page
-3. The demo loads `demo-repository` with a known defect commit
-4. Navigate through the workflow: Change → Impact → Verification → Findings → Dossier
-5. On Verification, click **"Run Verification"** to execute all checks
-6. The contract test will fail with a CRITICAL finding (intentional defect)
-7. Generate the dossier to produce the full evidence report
+2. Click **Get Started**, then **Load Demo** on the Overview page
+3. Wait for the launch progress to finish. ReleaseLens mounts the controlled repository and prepares changes, impact, checks, findings, and the dossier.
+4. The app opens on Change. Use the workflow navigation to inspect each populated stage through Dossier.
+5. The contract test intentionally fails and is recorded as a CRITICAL finding; the generated dossier records a FAILED verification status for engineering review.
 
 ### Reset demo
 

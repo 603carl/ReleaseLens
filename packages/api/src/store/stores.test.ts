@@ -88,6 +88,7 @@ async function setupInMemoryDb() {
 // ─── Stores (imported after db is patched) ───────────────────
 import {
   createRepository,
+  deleteRepository,
   getRepositoryById,
   getAllRepositories,
   updateRepository,
@@ -513,5 +514,13 @@ describe('Status model integrity', () => {
     expect(found!.confidence).toBe('UNKNOWN');
     expect(found!.confidence).not.toBe('CONFIRMED');
     expect(found!.confidence).not.toBe('SUPPORTED');
+  });
+});
+
+describe('repository.store deletion', () => {
+  it('removes related check runs through their verification plan', () => {
+    expect(() => deleteRepository(repoId)).not.toThrow();
+    expect(getRepositoryById(repoId)).toBeNull();
+    expect(getCheckRunById(checkRunId)).toBeNull();
   });
 });

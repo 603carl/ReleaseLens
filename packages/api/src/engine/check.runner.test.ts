@@ -102,6 +102,16 @@ describe('verification.planner', () => {
     expect(commands).toContain('npm test -- --reporter=verbose');
   });
 
+  it('does not run the full test suite twice for module and contract impacts', () => {
+    const items = [
+      makeImpactItem({ type: 'MODULE' }),
+      makeImpactItem({ type: 'CONTRACT_TEST', path: 'tests/contracts/orders.test.ts' }),
+    ];
+    const commands = generateVerificationPlan(items).map((p) => p.command);
+    expect(commands).toContain('npm test -- --reporter=verbose');
+    expect(commands).not.toContain('npm test');
+  });
+
   it('adds build when CONFIG is impacted', () => {
     const items = [makeImpactItem({ type: 'CONFIG', path: 'tsconfig.json' })];
     const plan = generateVerificationPlan(items);

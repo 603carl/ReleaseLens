@@ -83,8 +83,15 @@ export function deleteRepository(id: string): void {
     const rcId = rc.id as string;
     dbRun(`DELETE FROM evidence WHERE finding_id IN (SELECT id FROM findings WHERE release_candidate_id = ?)`, [rcId]);
     dbRun(`DELETE FROM findings WHERE release_candidate_id = ?`, [rcId]);
-    dbRun(`DELETE FROM check_runs WHERE release_candidate_id = ?`, [rcId]);
-    dbRun(`DELETE FROM verification_items WHERE verification_plan_id IN (SELECT id FROM verification_plans WHERE release_candidate_id = ?)`, [rcId]);
+    dbRun(
+      `DELETE FROM check_runs WHERE verification_item_id IN (
+         SELECT id FROM verification_items WHERE plan_id IN (
+           SELECT id FROM verification_plans WHERE release_candidate_id = ?
+         )
+       )`,
+      [rcId],
+    );
+    dbRun(`DELETE FROM verification_items WHERE plan_id IN (SELECT id FROM verification_plans WHERE release_candidate_id = ?)`, [rcId]);
     dbRun(`DELETE FROM verification_plans WHERE release_candidate_id = ?`, [rcId]);
     dbRun(`DELETE FROM impact_items WHERE release_candidate_id = ?`, [rcId]);
     dbRun(`DELETE FROM changes WHERE release_candidate_id = ?`, [rcId]);

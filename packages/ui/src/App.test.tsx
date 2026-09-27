@@ -1,15 +1,20 @@
-import { describe, it, expect } from 'vitest';
-import { render, screen, within } from '@testing-library/react';
+import { beforeEach, describe, expect, it } from 'vitest';
+import { fireEvent, render, screen, within } from '@testing-library/react';
 import App from './App.tsx';
 
 describe('App shell', () => {
+  beforeEach(() => {
+    window.history.replaceState({}, '', '/');
+  });
+
   it('renders the application logo and title', () => {
     render(<App />);
     expect(screen.getByText('ReleaseLens')).toBeInTheDocument();
   });
 
-  it('renders all primary navigation links', () => {
+  it('renders all primary navigation links after entering the workbench', () => {
     render(<App />);
+    fireEvent.click(screen.getByRole('button', { name: /Get Started/ }));
     const nav = screen.getByRole('navigation', { name: 'Primary navigation' });
     // Use within() to scope to the nav bar only
     expect(within(nav).getByText('Overview')).toBeInTheDocument();
@@ -20,13 +25,14 @@ describe('App shell', () => {
     expect(within(nav).getByText('Dossier')).toBeInTheDocument();
   });
 
-  it('renders the Overview page by default (redirected from /)', () => {
+  it('renders the welcome page at the application root', () => {
     render(<App />);
-    expect(screen.getByRole('heading', { name: 'Overview' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: /Evidence-Backed Release Verification Workbench/ })).toBeInTheDocument();
   });
 
-  it('shows the no-repository empty state on the Overview page', () => {
+  it('opens Overview and shows the no-repository empty state', async () => {
     render(<App />);
-    expect(screen.getByText(/No repository loaded/i)).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: /Get Started/ }));
+    expect(await screen.findByText('No repositories loaded')).toBeInTheDocument();
   });
 });

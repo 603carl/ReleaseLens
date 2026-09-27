@@ -10,10 +10,10 @@ interface CodeCheckLine {
 }
 
 const ANIMATED_STEPS: CodeCheckLine[] = [
-  { id: 1, text: '$ git diff --name-status HEAD~1...HEAD', status: 'passed', annotation: '2 modified files detected', type: 'command' },
+  { id: 1, text: '$ git diff --name-status HEAD~1...HEAD', status: 'passed', annotation: '1 modified file detected', type: 'command' },
   { id: 2, text: '  M src/orders/pricing.ts', status: 'checking', annotation: 'AST Dependency Trace :: CONFIRMED', type: 'diff-add' },
-  { id: 3, text: '- return basePrice * (1 - discountPercent / 100);', status: 'checking', annotation: 'Original logic deleted (-3 lines)', type: 'diff-del' },
-  { id: 4, text: '+ return basePrice * (1 - discountPercent); // BUG: missing / 100', status: 'checking', annotation: 'Regression introduced (+8 lines)', type: 'diff-add' },
+  { id: 3, text: '- return basePrice * (1 - discountPercent / 100);', status: 'checking', annotation: 'Original logic deleted (-1 line)', type: 'diff-del' },
+  { id: 4, text: '+ return basePrice * (1 - discountPercent); // BUG: missing / 100', status: 'checking', annotation: 'Regression introduced (+1 line)', type: 'diff-add' },
   { id: 5, text: 'RUN  tests/contracts/orders.test.ts > contract discount calculation', status: 'typing', annotation: 'Executing contract suite...', type: 'test' },
   { id: 6, text: 'FAIL tests/contracts/orders.test.ts: expected 90, received -900', status: 'failed', annotation: 'CRITICAL FAILURE DETECTED', type: 'test' },
   { id: 7, text: 'RULE: Contract test fail -> CRITICAL SEVERITY GATE [BLOCKED]', status: 'gated', annotation: 'Zero invention · Provenance locked', type: 'provenance' },

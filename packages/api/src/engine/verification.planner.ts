@@ -36,7 +36,7 @@ const ALWAYS_RUN: PlanItem[] = [
  * - Always run typecheck and lint
  * - If any MODULE or SHARED file is impacted → run unit tests
  * - If any TEST file is impacted → run unit tests
- * - If any CONTRACT_TEST file is impacted → run contract tests specifically
+ * - If any CONTRACT_TEST file is impacted → run the full suite with verbose output
  * - If any CONFIG is impacted → run build
  */
 export function generateVerificationPlan(impactItems: ImpactItem[]): PlanItem[] {
@@ -65,7 +65,8 @@ export function generateVerificationPlan(impactItems: ImpactItem[]): PlanItem[] 
     });
   }
 
-  if (hasModule || hasTest) {
+  // The verbose contract command runs the entire test suite, so don't repeat it.
+  if ((hasModule || hasTest) && !hasContractTest) {
     addOnce({
       name: 'Unit tests',
       reason: hasModule
