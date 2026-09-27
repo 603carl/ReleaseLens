@@ -1,20 +1,18 @@
 import { Router } from 'express';
 import fs from 'node:fs';
-import os from 'node:os';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { validateRepoPath, getRepoMetadata, detectStack, formatDetectedStack } from '../adapters/git.adapter.js';
-import { simpleGit } from 'simple-git';
 import { resetDb } from '../store/db.js';
 import { createRepository, deleteRepository, getAllRepositories } from '../store/repository.store.js';
 import { createReleaseCandidate } from '../store/release-candidate.store.js';
+import { VERCEL_DEMO_REPO_PATH } from '../engine/demo-fixture.js';
 
 export const demoRouter = Router();
 
 const currentDirectory = path.dirname(fileURLToPath(import.meta.url));
 const LOCAL_DEMO_REPO_PATH = path.resolve(currentDirectory, '../../../../demo-repository');
 const PACKAGED_DEMO_PATH = path.resolve(process.cwd(), 'demo-repository');
-const VERCEL_DEMO_REPO_PATH = path.join(os.tmpdir(), 'releaselens-demo-repository');
 const DEMO_BASE_REF = 'HEAD~1';
 const DEMO_TARGET_REF = 'HEAD';
 const DEMO_LABEL = 'RC-pricing-discount-v1.0.1';
@@ -38,27 +36,6 @@ async function getDemoRepositoryPath(): Promise<string> {
     throw new Error('Demo verification tools are missing from this deployment.');
   }
   fs.symlinkSync(sourceModules, path.join(VERCEL_DEMO_REPO_PATH, 'node_modules'), 'dir');
-
-  const pricingPath = path.join(VERCEL_DEMO_REPO_PATH, 'src', 'orders', 'pricing.ts');
-  const currentPricing = fs.readFileSync(pricingPath, 'utf8');
-  const basePricing = fs.readFileSync(
-    path.join(PACKAGED_DEMO_PATH, 'demo-fixtures', 'pricing.base.ts'),
-    'utf8',
-  );
-  fs.writeFileSync(path.join(VERCEL_DEMO_REPO_PATH, '.gitignore'), 'node_modules/\ndist/\n');
-
-  const git = simpleGit(VERCEL_DEMO_REPO_PATH);
-  await git.init();
-  await git.addConfig('user.name', 'ReleaseLens Demo');
-  await git.addConfig('user.email', 'demo@releaselens.local');
-  fs.writeFileSync(pricingPath, basePricing);
-  await git.add('.');
-  await git.commit('feat: initial order management API');
-  await git.checkoutLocalBranch('feature/discount-logic');
-  fs.writeFileSync(pricingPath, currentPricing);
-  await git.add('src/orders/pricing.ts');
-  await git.commit('feat: add promotional discount support');
-
   return VERCEL_DEMO_REPO_PATH;
 }
 
@@ -69,7 +46,11 @@ async function getDemoRepositoryPath(): Promise<string> {
 demoRouter.post('/launch', async (_req, res) => {
   try {
     const demoRepoPath = await getDemoRepositoryPath();
-    const validation = validateRepoPath(demoRepoPath);
+    const validation = process.env.VERCEL
+      ? fs.existsSync(demoRepoPath)
+        ? { valid: true }
+        : { valid: false, error: `Path does not exist: ${demoRepoPath}` }
+      : validateRepoPath(demoRepoPath);
     if (!validation.valid) {
       return res.status(422).json({ error: { code: 'INVALID_DEMO_REPO', message: validation.error } });
     }
@@ -82,7 +63,9 @@ demoRouter.post('/launch', async (_req, res) => {
     }
 
     const [metadata, stack] = await Promise.all([
-      getRepoMetadata(demoRepoPath),
+      process.env.VERCEL
+        ? Promise.resolve({ branch: 'feature/discount-logic', commitHash: '5071658763e34f522ed0b8cf2f725b306dd86418' })
+        : getRepoMetadata(demoRepoPath),
       Promise.resolve(detectStack(demoRepoPath)),
     ]);
     const repo = createRepository({

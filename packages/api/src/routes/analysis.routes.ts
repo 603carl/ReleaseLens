@@ -13,6 +13,7 @@ import { getRepositoryById } from '../store/repository.store.js';
 import { getImpactItemsByReleaseCandidate, createImpactItem } from '../store/impact.store.js';
 import { getVerificationPlanByReleaseCandidate } from '../store/verification.store.js';
 import { analyseImpact } from '../engine/analysis.engine.js';
+import { DEMO_CHANGED_FILE, DEMO_CHANGE_DIFF, isVercelDemoRepository } from '../engine/demo-fixture.js';
 
 export const analysisRouter = Router();
 
@@ -39,7 +40,9 @@ analysisRouter.get('/release-candidates/:id/changes', async (req: Request, res: 
     }
 
     let diffStats;
-    if (rc.targetRef === 'HEAD' && rc.baseRef) {
+    if (isVercelDemoRepository(repo.path)) {
+      diffStats = [{ path: DEMO_CHANGED_FILE, changeType: 'MODIFIED' as const, linesAdded: 1, linesRemoved: 1 }];
+    } else if (rc.targetRef === 'HEAD' && rc.baseRef) {
       // Try git diff, fall back to working tree
       try {
         diffStats = await getChangedFiles(repo.path, rc.baseRef, rc.targetRef);
@@ -89,6 +92,10 @@ analysisRouter.get('/release-candidates/:id/diff', async (req: Request, res: Res
     const filePath = typeof req.query.path === 'string' && req.query.path.trim().length > 0
       ? req.query.path.trim()
       : undefined;
+
+    if (isVercelDemoRepository(repo.path)) {
+      return res.json({ data: { diff: !filePath || filePath === DEMO_CHANGED_FILE ? DEMO_CHANGE_DIFF : '' } });
+    }
 
     const diff = await getDiffPatch(repo.path, rc.baseRef, rc.targetRef, filePath);
     return res.json({ data: { diff } });

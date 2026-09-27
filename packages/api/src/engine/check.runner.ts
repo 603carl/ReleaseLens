@@ -67,6 +67,26 @@ export interface CommandResult {
 
 const MAX_OUTPUT_BYTES = 256 * 1024; // 256KB cap per stream
 
+function resolveCommand(command: string, cwd: string): { executable: string; args: string[] } {
+  if (!process.env.VERCEL) {
+    const [executable, ...args] = command.trim().split(/\s+/);
+    return { executable, args };
+  }
+
+  const vitest = path.join(cwd, 'node_modules', 'vitest', 'vitest.mjs');
+  const eslint = path.join(cwd, 'node_modules', 'eslint', 'bin', 'eslint.js');
+  const typescript = path.join(cwd, 'node_modules', 'typescript', 'bin', 'tsc');
+  const vercelCommands: Record<string, string[]> = {
+    'npm test': [vitest, 'run'],
+    'npm test -- --reporter=verbose': [vitest, 'run', '--reporter=verbose'],
+    'npm run lint': [eslint, 'src', '--ext', '.ts'],
+    'npm run typecheck': [typescript, '--noEmit'],
+    'npm run build': [typescript],
+  };
+
+  return { executable: process.execPath, args: vercelCommands[command] ?? [] };
+}
+
 /**
  * Execute an allowlisted command in the given working directory.
  * Returns a promise that always resolves (never rejects) — errors are captured in the result.
@@ -80,8 +100,8 @@ export function runCommand(
   return new Promise((resolve) => {
     const start = Date.now();
 
-    // Parse command into executable + args (no shell interpolation)
-    const [executable, ...args] = command.trim().split(/\s+/);
+    // Use bundled CLIs directly on Vercel, where npm may not be installed.
+    const { executable, args } = resolveCommand(command, cwd);
 
     // On Windows, .cmd files require shell:true to execute.
     // We use shell:true only on Windows, where the allowlist is the security boundary.
