@@ -14,16 +14,28 @@ import type {
   Dossier,
 } from '../types/domain.ts';
 
-const BASE_URL = '/api';
+const API_ENDPOINT = '/api/bridge';
 
 async function apiFetch<T>(
   url: string,
   options?: RequestInit,
 ): Promise<{ data: T } | { error: { code: string; message: string } }> {
-  const res = await fetch(`${BASE_URL}${url}`, {
+  const [route, query = ''] = url.split('?');
+  const params = new URLSearchParams(query);
+  params.set('__api_route', route.replace(/^\/+/, ''));
+  const res = await fetch(`${API_ENDPOINT}?${params.toString()}`, {
     headers: { 'Content-Type': 'application/json', ...(options?.headers ?? {}) },
     ...options,
   });
+  const contentType = res.headers.get('content-type') ?? '';
+  if (!contentType.includes('json')) {
+    return {
+      error: {
+        code: 'INVALID_API_RESPONSE',
+        message: `API returned HTTP ${res.status} with ${contentType || 'an unknown content type'} instead of JSON.`,
+      },
+    };
+  }
   return res.json() as Promise<{ data: T } | { error: { code: string; message: string } }>;
 }
 
