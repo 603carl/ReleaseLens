@@ -14,10 +14,9 @@ app.use(express.json());
 
 app.use((req, res, next) => {
   const requestUrl = new URL(req.originalUrl, `http://${req.headers.host ?? 'localhost'}`);
-  if (requestUrl.pathname !== '/api/bridge') return next();
-
   const apiRoute = requestUrl.searchParams.get('__api_route');
-  if (!apiRoute || !/^[a-z0-9-]+(?:\/[a-z0-9-]+)*$/i.test(apiRoute)) {
+  if (!apiRoute) return next();
+  if (!/^[a-z0-9-]+(?:\/[a-z0-9-]+)*$/i.test(apiRoute)) {
     return res.status(400).json({
       error: { code: 'INVALID_API_ROUTE', message: 'A valid API route is required.' },
     });

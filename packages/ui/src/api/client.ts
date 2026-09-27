@@ -14,7 +14,7 @@ import type {
   Dossier,
 } from '../types/domain.ts';
 
-const API_ENDPOINT = '/api/bridge';
+const API_ENDPOINT = '/api/health';
 
 async function apiFetch<T>(
   url: string,

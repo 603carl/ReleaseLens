@@ -4,9 +4,6 @@
   "outputDirectory": "packages/ui/dist",
   "functions": {
     "api/[...path].ts": {
-      "includeFiles": "node_modules/sql.js/dist/sql-wasm.wasm"
-    },
-    "api/bridge.ts": {
       "includeFiles": "{node_modules/sql.js/dist/sql-wasm.wasm,demo-repository/**}",
       "maxDuration": 60
     }
