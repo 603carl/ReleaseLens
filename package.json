@@ -6,7 +6,6 @@
     "packages/ui"
   ],
   "scripts": {
-    "predev": "node scripts/prepare-demo-repository.mjs",
     "dev": "concurrently --names \"API,UI\" --prefix-colors \"cyan,magenta\" \"npm run dev --workspace=packages/api\" \"npm run dev --workspace=packages/ui\"",
     "build": "npm run build --workspace=packages/api && npm run build --workspace=packages/ui",
     "test": "npm run test --workspace=packages/api && npm run test --workspace=packages/ui",
@@ -16,7 +15,6 @@
   },
   "devDependencies": {
     "concurrently": "^8.2.2",
-    "pptxgenjs": "^4.0.1",
     "rimraf": "^5.0.5"
   }
 }
